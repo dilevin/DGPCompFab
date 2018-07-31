@@ -1,0 +1,6 @@
+[submodule "ThirdParty/libfive"]
+	path = ThirdParty/libfive
+	url = https://github.com/libfive/libfive
+[submodule "ThirdParty/libigl"]
+	path = ThirdParty/libigl
+	url = https://github.com/libigl/libigl.git
