@@ -68,7 +68,7 @@ option(LIBIGL_WITH_VIEWER            "Use OpenGL viewer"  ON)
 option(LIBIGL_WITH_XML               "Use XML"            OFF)
 
 find_package(LIBIGL REQUIRED QUIET)
-find_package(cling REQUIRED)
+find_package(Cling REQUIRED)
 
 #Third Party Libraries
 set(LIBIGL_INCLUDE_PATH ${PROJECT_SOURCE_DIR}/../ThirdParty/libigl/include CACHE FILEPATH "Root include directory for libigl")
