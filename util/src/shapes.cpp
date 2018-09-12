@@ -38,9 +38,20 @@ Tree rotate2d(Tree t, float angle)
                    Tree::Z());
 }
 
+Tree rotate2d(Tree t, Kernel::Tree &angle)
+{
+    return t.remap( cos(angle) * Tree::X() + sin(angle) * Tree::Y(),
+                   -sin(angle) * Tree::X() + cos(angle) * Tree::Y(),
+                   Tree::Z());
+}
+
 Tree move(Tree t, Eigen::Vector3f m)
 {
     return t.remap(Tree::X() - m.x(), Tree::Y() - m.y(), Tree::Z() - m.z());
+}
+
+Tree move(Kernel::Tree t, ShapeVar &m) {
+    return t.remap(Tree::X() - m(0), Tree::Y() - m(1), Tree::Z() - m(2));
 }
 
 Tree recurse(float x, float y, float scale, Eigen::Matrix4f M, int i)

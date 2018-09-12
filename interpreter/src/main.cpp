@@ -21,6 +21,7 @@ Eigen::MatrixXi F;
 cling::Interpreter *interp;
 std::string currentFilename;
 std::string currentObject;
+std::vector<std::string> additionalIncludes;
 
 //convert preprocessor define into a string
 #define STRINGIFY(s) #s
@@ -65,7 +66,6 @@ void setupIncludePaths(cling::Interpreter  &interp) {
     interp.AddIncludePath(libFiveIncludeDir());
     interp.AddIncludePath(libFiveUtilsIncludeDir());
     interp.AddIncludePath(utilsIncludeDir());
-    
 }
 
 //setup external libraries
@@ -92,12 +92,19 @@ std::string returnHeaderCode() {
     sstr << "#include <iostream>\n";
     sstr<<  "#include <interopUtils.h>\n";
     sstr<<  "#include <shapes.h>\n";
+    sstr<<  "#include <Shape.h>\n";
     sstr<<  "#include <csgOps.h>\n";
     sstr<<  "#include <Eigen/Dense>\n";
     sstr<<  "#include <libfive/render/brep/mesh.hpp>\n";
     sstr<<  "#include <libfive/render/brep/xtree_pool.hpp>\n";
     sstr<<  "#include <libfive/render/brep/region.hpp>\n";
     sstr<<  "#include <libfive/render/brep/region.hpp>\n";
+    
+    for(auto &fileStr : additionalIncludes) {
+        std::cout<<"Add include file: "<<fileStr<<"\n";
+        sstr<<"#include \""<<fileStr<<"\""<<"\n";
+    }
+    
     sstr << "using namespace std;";
     sstr << "using namespace Kernel;";
     
@@ -119,7 +126,12 @@ void recompileScript(cling::Interpreter &interp, std::string &object) {
 
 int main(int argc, char **argv) {
     
-    std::cout<<"TEST \n";
+    //rest of the args are user defined include files
+    for(unsigned int iarg = 2; iarg < argc; ++iarg) {
+        additionalIncludes.push_back(std::string(argv[iarg]));
+    }
+    
+    
     interp = new cling::Interpreter(argc, argv, LLVMDIR);
     setupIncludePaths(*interp);
     setupExternalLibs(*interp);

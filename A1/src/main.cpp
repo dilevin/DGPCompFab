@@ -1,6 +1,6 @@
 
 //#include "util/shapes.hpp"
-#include <igl/opengl/glfw/Viewer.h>
+#include <igl/opengl/glfw/viewer.h>
 #include <igl/opengl/glfw/imgui/ImGuiMenu.h>
 #include <igl/opengl/glfw/imgui/ImGuiHelpers.h>
 #include <imgui/imgui.h>
