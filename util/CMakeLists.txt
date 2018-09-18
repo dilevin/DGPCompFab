@@ -5,7 +5,7 @@ cmake_minimum_required (VERSION 3.2)
 
 project(utils)
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/ThirdParty/eigen3.3/cmake CACHE PATH "Root include directory for Eigen3" FORCE)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../ThirdParty/eigen3.3/cmake CACHE PATH "Root include directory for Eigen3" FORCE)
 
 #Flags which prevent crashes when compiling against libfive
 if(NOT MSVC)
