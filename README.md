@@ -5,6 +5,8 @@ This github is the repository for all the assignments for  the University of Tor
 Please use the issue tracker to report problems with the assignment code.
 
 ## Brief Explanation of LibFive
+Under the hood this code uses the LibFive library for shape manipulation [https://libfive.com](https://libfive.com).
+
 You will notice that methods in these assignment take in variables of the type  Kernel::Tree (i.e Kernel::Tree A). 
 
 The code treats A as an implicit function A(x). At runtime every x in the scene is passed to A and the surface is evaluated by collecting all x's for which A(x) < 0.  
