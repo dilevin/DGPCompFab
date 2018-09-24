@@ -20,3 +20,6 @@ For any given x, the value of H will be A(x) + B(x).
 You can see examples of more manipulations on the libfive homepage or in the shapes.cpp in the utils directory.
 
 Libfive supports most standard mathematical operations (+,-,max, min,sin,cos .... ). 
+
+## Optimization 
+For those of you inspired to learn more about optimization by Assignment 2, there are two must read books on the subject (in my opinion). The first is **Convex Optimization** by Stephen Boyd (available for free [here](http://web.stanford.edu/~boyd/cvxbook/)) which is widely considered the best textbook on the subject. The second, and my personal favourite, is [Numerical Optimization] (https://www.springer.com/gp/book/9780387303031) by Jorge Nocedal and Stephen J. Wright which is more numerically focused. 
