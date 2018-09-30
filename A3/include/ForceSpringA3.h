@@ -29,17 +29,14 @@ namespace Gauss {
                 m_k = k;
             }
             
-            //forces can give you the energy stored, the force itself and the hessian
+            //Compute the energy of a single spring
             inline DataType getEnergy(State<DataType> &state) {
                 
-                //spring energy = k*(1.0 - l/l0).^2]
-                double mag = (m_q1(state)-m_q0(state)).norm();
-                //if(fabs(mag) < 1e-3) {
-                  //  mag = 1e-3;
-                //}
-                
-                DataType l = (1.0- mag/m_l0);
-                return 0.5*m_k*l*l;
+                double energy = 0.0;
+                //---- YOUR CODE HERE ----//
+               
+                //---- END YOUR CODE HERE ----//
+                return energy;
             }
             
             //forces always act on at least one DOF of the system this function returns which DOF the are acting on.
@@ -76,57 +73,54 @@ namespace Gauss {
             const DataType & getRestLength() const { return m_l0; }
             void setRestLength(const DataType &l0) { m_l0 = l0; }
 
+            //Compute the forces acting on the end points of a spring.
             template <typename Vector>
             inline void getForce(Vector &f, State<DataType> &state) {
                 
-                auto q0 = m_q0(state);
-                auto q1 = m_q1(state);
-           
-                double mag = (q1-q0).norm();
+                //x0 (x1) is the three dimensional position of the first (second) node of a single spring.
+                //m_l0 is the length of the spring in its undeformed state
+                auto x0 = m_q0(state);
+                auto x1 = m_q1(state);
+                Eigen::Vector3d f0, f1; //force acting on first (second) node of spring
                 
+                double mag = (x1-x0).norm(); //current length of spring
                 
                 if(fabs(mag) < 1e-8) {
                     mag = 1e-8;
-               }
+                }
                 
+                //---- YOUR CODE HERE ----//
+                f0.setZero();
+                f1.setZero();
+                //---- END YOUR CODE HERE ----//
                 
-                Eigen::Vector3d fSpring = (m_k/m_l0)*(1.0/mag -1.0/m_l0)*(q1-q0);
-                assign(f, fSpring, std::array<DOFBase<DataType,0> , 1>{{*m_q1.getDOF()}});
-                fSpring = -fSpring;
-                assign(f, fSpring, std::array<DOFBase<DataType,0> , 1>{{*m_q0.getDOF()}});
-    
+                assign(f, f0, std::array<DOFBase<DataType,0> , 1>{{*m_q0.getDOF()}});
+                assign(f, f1, std::array<DOFBase<DataType,0> , 1>{{*m_q1.getDOF()}});
             }
             
             
+            //Compute the 6x6 stiffness matrix for a spring.
             template <typename Matrix>
             inline void getStiffnessMatrix(Matrix &H, State<DataType> &state) {
-                auto q0 = m_q0(state);
-                auto q1 = m_q1(state);
                 
-                Eigen::Vector3x<DataType> dq = q1-q0;
-               
-                double mag = (q1-q0).norm();
+                //x0 (x1) is the three dimensional position of the first (second) node of a single spring.
+                //m_l0 is the length of the spring in its undeformed state
+                auto x0 = m_q0(state);
+                auto x1 = m_q1(state);
+                
+                //stiffness matrix
+                Eigen::Matrix<double, 6,6> Hspring;
+                
+                double mag = (x1-x0).norm(); //current length of spring
+                
                 if(fabs(mag) < 1e-8) {
                     mag = 1e-8;
-               }
+                }
                 
-                Eigen::Vector3x<DataType> dqN = dq/mag;
+                //---- YOUR CODE HERE ----//
+                Hspring.setZero();
+                //---- END YOUR CODE HERE ----//
                 
-                //double strain = 1.0 - l/m_l0;
-                double b = m_k/m_l0;
-                double a = b*(1.0/mag - 1.0/m_l0);
-                double c = b/(mag);
-                
-                Eigen::Matrix<double, 6,3> B;
-                B << -1,  0,  0,
-                      0, -1,  0,
-                      0,  0, -1,
-                      1,  0,  0,
-                      0,  1,  0,
-                      0,  0,  1;
-                
-                Eigen::Matrix<double, 6,6> Hspring;
-                Hspring = -a*B*B.transpose() - c*B*dqN*dqN.transpose()*B.transpose();
                 assign(H, Hspring, std::array<DOFBase<DataType,0> , 1>{{*m_q0.getDOF()}}, std::array<DOFBase<DataType,0> , 1>{{*m_q1.getDOF()}});
                 
             }

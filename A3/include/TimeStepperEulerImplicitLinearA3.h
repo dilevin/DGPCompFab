@@ -28,26 +28,21 @@ namespace Gauss {
     {
     public:
         
-        TimeStepperImplEulerImplicitLinear(bool refactor = true) {
-            m_factored = false;
-            m_refactor = refactor;
+        TimeStepperImplEulerImplicitLinear() {
+            std::cout<<"Using A3 Semi-Implicit Integrator \n";
         }
         
         TimeStepperImplEulerImplicitLinear(const TimeStepperImplEulerImplicitLinear &toCopy) {
-            m_factored = false;
+            
         }
         
         ~TimeStepperImplEulerImplicitLinear() {
-            #ifdef GAUSS_PARDISO
-                m_pardiso.cleanup();
-            #endif
+            
         }
         
         //Methods
         template<typename World>
         void step(World &world, double dt, double t);
-        
-        inline typename VectorAssembler::MatrixType & getLagrangeMultipliers() { return m_lagrangeMultipliers; }
         
     protected:
         
@@ -55,54 +50,33 @@ namespace Gauss {
         MatrixAssembler m_stiffnessMatrix;
         VectorAssembler m_forceVector;
         
-        //storage for lagrange multipliers
-        typename VectorAssembler::MatrixType m_lagrangeMultipliers;
-        
-        bool m_factored, m_refactor;
-        
-#ifdef GAUSS_PARDISO
-        
-        SolverPardiso<Eigen::SparseMatrix<DataType, Eigen::RowMajor> > m_pardiso;
-        
-#endif
-        
     private:
     };
 }
 
+//dt - the time step (sometimes reffered to as h)
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>
 template<typename World>
 void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembler>::step(World &world, double dt, double t) {
 
     
-    Eigen::SparseMatrix<DataType, Eigen::RowMajor> systemMatrix;
-    Eigen::VectorXd x0;
+    Eigen::SparseMatrix<DataType, Eigen::RowMajor> A;
+    Eigen::VectorXd x0, b;
     
-    if(m_refactor || !m_factored) {
-        
-        //First two lines work around the fact that C++11 lambda can't directly capture a member variable.
-        MatrixAssembler &massMatrix = m_massMatrix;
-        MatrixAssembler &stiffnessMatrix = m_stiffnessMatrix;
-        
-        //get mass matrix
-        ASSEMBLEMATINIT(massMatrix, world.getNumQDotDOFs()+world.getNumConstraints(), world.getNumQDotDOFs()+world.getNumConstraints());
-        ASSEMBLELIST(massMatrix, world.getSystemList(), getMassMatrix);
-        
-        //add in the constraints
-        ASSEMBLELISTOFFSET(massMatrix, world.getConstraintList(), getGradient, world.getNumQDotDOFs(), 0);
-        ASSEMBLELISTOFFSETTRANSPOSE(massMatrix, world.getConstraintList(), getGradient, 0, world.getNumQDotDOFs());
-        ASSEMBLEEND(massMatrix);
-        
-        
-        //get stiffness matrix
-        ASSEMBLEMATINIT(stiffnessMatrix, world.getNumQDotDOFs()+world.getNumConstraints(), world.getNumQDotDOFs()+world.getNumConstraints());
-        ASSEMBLELIST(stiffnessMatrix, world.getSystemList(), getStiffnessMatrix);
-        ASSEMBLELIST(stiffnessMatrix, world.getForceList(), getStiffnessMatrix);
-        ASSEMBLEEND(stiffnessMatrix);
-        
-        systemMatrix = (*m_massMatrix)- dt*dt*(*m_stiffnessMatrix);
-        
-    }
+    MatrixAssembler &massMatrix = m_massMatrix;
+    MatrixAssembler &stiffnessMatrix = m_stiffnessMatrix;
+    
+    //Get the mass matrix
+    ASSEMBLEMATINIT(massMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+    ASSEMBLELIST(massMatrix, world.getSystemList(), getMassMatrix);
+    ASSEMBLEEND(massMatrix);
+    
+    
+    //Get the stiffness matrix
+    ASSEMBLEMATINIT(stiffnessMatrix, world.getNumQDotDOFs(), world.getNumQDotDOFs());
+    ASSEMBLELIST(stiffnessMatrix, world.getSystemList(), getStiffnessMatrix);
+    ASSEMBLELIST(stiffnessMatrix, world.getForceList(), getStiffnessMatrix);
+    ASSEMBLEEND(stiffnessMatrix);
     
     VectorAssembler &forceVector = m_forceVector;
     
@@ -112,30 +86,31 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
     ASSEMBLELISTOFFSET(forceVector, world.getConstraintList(), getDbDt, world.getNumQDotDOFs(), 0);
     ASSEMBLEEND(forceVector);
 
-    //Grab the state
+    //Important Variables:
+    
+    //q - the displacement of each vertex in the simulated mesh, stored as a stacked vector [u1x, u1y, u1z ... unx, uny, unz]'. Here (u1x,u1y,u1z) is the 3D displacement of the first point and (unx, uny,unz) is the 3D displacement of the n^{th} point.
     Eigen::Map<Eigen::VectorXd> q = mapStateEigen<0>(world);
+    
+    //qDot - the velocity of each vertex in the simulated mesh, stored as a stacked vector [v1x, v1y, v1z ... vnx, vny, vnz]'. Here (v1x,v1y,v1z) is the 3D velocity of the first point and (unx, uny,unz) is the 3D velocity of the n^{th} point.
     Eigen::Map<Eigen::VectorXd> qDot = mapStateEigen<1>(world);
     
-    //setup RHS
-    (*forceVector).head(world.getNumQDotDOFs()) = (*m_massMatrix).block(0,0, world.getNumQDotDOFs(), world.getNumQDotDOFs())*qDot + dt*(*forceVector).head(world.getNumQDotDOFs());
+    //****** Using Mass, Stiffness and Force Matrix *********//
+    //GAUSS will build the mass, stiffness and force vectors for the mesh being simulated using assemblers. In order
+    //to use these in calculations you can convert them to Eigen vectors (linear algebra objects) using the * operator.
+    //e.g If you want to add the mass matrix to the stiffness matrix you can write (*massMatrix)+(*stiffnessMatrix).
+    //    If you want to multiply the mass matrix by the stiffness matrix you can write (*massMatrix)*(*forceVector).
     
-#ifdef GAUSS_PARDISO
-    if(m_refactor || !m_factored) {
-        m_pardiso.symbolicFactorization(systemMatrix);
-        m_pardiso.numericalFactorization();
-        m_factored = true; 
-    }
+    //---- YOUR CODE HERE ----//
+    //Replace the next two lines with formulas to compute the lhs and rhs such that solving the equation
+    //Ax = b implements a semi-implicit integration step
+    A = (*massMatrix);
+    b = Eigen::VectorXx<DataType>::Zero((*forceVector).rows(),1);
+    //---- END YOUR CODE HERE ----//
     
-    m_pardiso.solve(*forceVector);
-    x0 = m_pardiso.getX();
-    //m_pardiso.cleanup();
-#else
-    //solve system (Need interface for solvers but for now just use Eigen LLt)
+    //Solve Linear System
     Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;
+    solver.compute(A);
     
-    if(m_refactor || !m_factored) {
-        solver.compute(systemMatrix);
-    }
     
     if(solver.info()!=Eigen::Success) {
         // decomposition failed
@@ -150,17 +125,15 @@ void TimeStepperImplEulerImplicitLinear<DataType, MatrixAssembler, VectorAssembl
         std::cout<<"Solve Failed \n";
         exit(1);
     }
-
+    //End Solve Linear System
     
-    x0 = solver.solve((*forceVector));
-#endif
+    //Update State
+    x0 = solver.solve(b);
     
     qDot = x0.head(world.getNumQDotDOFs());
     
-    m_lagrangeMultipliers = x0.tail(world.getNumConstraints());
-    
-    //update state
     updateState(world, world.getState(), dt);
+    //End Update State
 }
 
 template<typename DataType, typename MatrixAssembler, typename VectorAssembler>

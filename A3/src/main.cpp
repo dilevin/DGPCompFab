@@ -39,14 +39,23 @@ bool postDrawCallback(igl::opengl::glfw::Viewer & viewer) {
     
     //simple collision detection and resolution with floor
     //check if particle is below the floor, if so, clamp y position to the floor
-    double floorY = -5;
-    for(unsigned int ii=0; ii<V.rows(); ++ii) {
-        if((V(ii,1) + mapStateEigen<0>(world)[3*ii+1]) < floorY) {
-            mapStateEigen<0>(world)[3*ii+1] = floorY - V(ii,1);
-            mapStateEigen<1>(world)[3*ii+1] = 0.0;
-        }
-    }
+    double floorY = -5; //y position of the floor
     
+    //displacement of each node in the mesh after simulation (Vdef has not been updated yet)
+    auto q =  mapStateEigen<0>(world);
+    
+    //velocity of each node in the mesh
+    auto qDot = mapStateEigen<1>(world);
+    
+    //V is an nx3 matrix which stores the original positions of the simulated mesh in the format [v1x, v1y,v1z; v2x v2y v2z; ...;vnx vny vnz]. Here semicolon (;) indicates starting a new row of the matrix.
+    //Vdef is an nx3 matrix which stores the original, undeformed positions of the mesh in the same format as above.
+    
+    //---- YOUR CODE HERE ----//`
+    //Iterate over each vertex in the mesh (remember that each vertex has 3 displacement/velocity components)
+    //If the mesh vertex would fall below the floor, set the displacement such that the vertex is on the floor and set the velocity in the y-direction to be zero.
+    //---- END YOUR CODE HERE ----//`
+
+    //Update the mesh
     Eigen::VectorXd u = mapStateEigen<0>(world); //set displacements to zero
     
     for(unsigned int ii=0; ii<Vdef.rows(); ++ii) {
@@ -65,7 +74,7 @@ int main(int argc, char **argv) {
     Eigen::MatrixXi T, E;
     
     //Setup shape
-    igl::readMESH("/Users/dilevin/Documents/Teaching/CompFabUofT/2018b/Instructor/ThirdParty/GAUSS/data/meshesTetWild/archbridge.mesh", V,T,F);
+    igl::readMESH(dataDir()+"/meshesTetWild/archbridge.mesh", V,T,F);
     
     //get edges of tetrahedra
     igl::edges(T,E);
