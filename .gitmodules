@@ -4,3 +4,6 @@
 [submodule "ThirdParty/libigl"]
 	path = ThirdParty/libigl
 	url = https://github.com/libigl/libigl.git
+[submodule "ThirdParty/Gauss"]
+	path = ThirdParty/Gauss
+	url = https://github.com/dilevin/GAUSS.git
