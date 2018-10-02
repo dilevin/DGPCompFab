@@ -90,13 +90,14 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/../ThirdParty/libigl/external/glad/include)
 include_directories(${PROJECT_SOURCE_DIR}/../ThirdParty/libigl/external/imgui)
 include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/cpp)
 include_directories(${PROJECT_SOURCE_DIR}/../util/include)
 
 #I need access to my include directories for the interpeter 
 
 #add_subdirectory(${PROJECT_SOURCE_DIR}/../ThirdParty/libfive ${CMAKE_CURRENT_BINARY_DIR}/libfive)
-#add_subdirectory(${PROJECT_SOURCE_DIR}/../util ${CMAKE_CURRENT_BINARY_DIR}/util)
-add_subdirectory(${PROJECT_SOURCE_DIR}/../interpreter ${CMAKE_CURRENT_BINARY_DIR}/interpreter)
+add_subdirectory(${PROJECT_SOURCE_DIR}/../util ${CMAKE_CURRENT_BINARY_DIR}/util)
+#add_subdirectory(${PROJECT_SOURCE_DIR}/../interpreter ${CMAKE_CURRENT_BINARY_DIR}/interpreter)
 
 #add definitions for setting the interpreter libraries and include directories
 add_definitions(-DEIGEN_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR})
