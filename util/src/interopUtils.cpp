@@ -8,9 +8,9 @@
 
 void fiveToIGL(Eigen::MatrixXd &V, Eigen::MatrixXi &F, const Kernel::BRep<3> &from) {
     
-    size_t numVertices = from.verts.size();
-    size_t numFaces  = from.branes.size();
-    
+    unsigned int  numVertices = from.verts.size();
+    unsigned int  numFaces  = from.branes.size();
+   
     V.resize(numVertices, 3);
     F.resize(numFaces,3);
     

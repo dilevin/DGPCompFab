@@ -1,6 +1,6 @@
 
 //#include "util/shapes.hpp"
-#include <igl/opengl/glfw/viewer.h>
+#include <igl/opengl/glfw/Viewer.h>
 #include <igl/opengl/glfw/imgui/ImGuiMenu.h>
 #include <igl/opengl/glfw/imgui/ImGuiHelpers.h>
 #include <imgui/imgui.h>
@@ -79,6 +79,7 @@ int main(int argc, char **argv) {
     Eigen::VectorXd x0(2);
     x0<<jointAngles[0],jointAngles[1];
     
+    std::cout<<"Test Crash: "<<testCrash()<<"\n";
     //Uncomment the lines below to run your various optimizers
     //std::cout<<"Final Cost: "<<gradientDescent(x0, objective, gradient, 1)<<"\n"; //Optimize using gradient descent with fixed step size. Try using step size 1, 0.5 and 0.1
     //std::cout<<"Final Cost: "<<gradientDescentWithBacktracking(x0, objective, gradient)<<"\n"; //Optimize using gradient descent with backtracking line search
@@ -89,7 +90,7 @@ int main(int argc, char **argv) {
     
     Kernel::Region<3> r({ -5, -5, -5 }, { 5, 5, 5 });
 
-    fiveToIGL(V, F, *drawMesh(myShape, r, 0.2));
+    fiveToIGL(V, F, *drawMesh(myShape, r, 0.1));
     
     viewer.data().set_mesh(V, F);
     viewer.launch();

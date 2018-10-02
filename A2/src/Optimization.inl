@@ -1,3 +1,9 @@
+double testCrash() {
+  Eigen::VectorXd grad;
+  grad.resize(2);
+  return 0.2195;
+}
+
 template<typename Objective, typename Jacobian>
 double gradientDescent(Eigen::VectorXd &x0, Objective &f, Jacobian &g, float stepSize, unsigned int maxSteps) {
     
