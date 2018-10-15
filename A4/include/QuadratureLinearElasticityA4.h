@@ -18,7 +18,7 @@ public:
         
     }
     
-    inline QuadratureLinearElasticity() { }
+    inline QuadratureLinearElasticityA4() { }
     
     inline void setParameters(double youngsModulus, double poissonsRatio) {
         
