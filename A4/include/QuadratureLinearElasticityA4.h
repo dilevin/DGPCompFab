@@ -96,13 +96,15 @@ public:
     template<typename Matrix>
     inline void getHessian(Matrix &H, const State<DataType> &state) {
         
-        H.setZero();
+        Eigen::Matrix<DataType, 12,12> stiffness;
+        stiffness.setIdentity();
+    
         //set H to the value of the stiffness martrix for this element. Remember the relationship
         //between the potential energy and the stiffness matrix.
         //---- YOUR CODE HERE ----//
         //---- END YOUR CODE HERE ----//
         
-        assign(H, m_K, m_qDofs, m_qDofs);
+        assign(H, stiffness, m_qDofs, m_qDofs);
         
     }
     
