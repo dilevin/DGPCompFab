@@ -46,6 +46,7 @@ public:
     template<unsigned int Vertex>
     inline std::array<DataType, 3> dphi(double *x) {
         
+        std::array<DataType, 3> temp;
         temp[0] = 0.0;
         temp[1] = 0.0;
         temp[2] = 0.0;
