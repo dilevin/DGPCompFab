@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
     Eigen::VectorXi N;
     
     //Setup shape
-    igl::readMESH("/Users/dilevin/Documents/Teaching/CompFabUofT/2018b/Instructor/ThirdParty/GAUSS/data/meshesTetWild/archbridge.mesh", V,T,F);
+    igl::readMESH(dataDir()+"/meshesTetWild/archbridge.mesh", V,T,F);
     
     tetsToTriangles(F, T);
     
